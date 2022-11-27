@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  order:
+    build: ./order
+    ports: 
+      - 5002:5002
+    environment:
+      PORT: 5002
+    restart: always
+    depends_on:
+      - rabbitmq
+      - db
+    networks:
+      - microservice
+    # command:  sh -c' ./wait-for-it.sh rabbitmq:5672 --timeout=30 -- npm run dev'
+    
+
+  product:
+    build: ./product
+    ports: 
+      - 5000:5000
+    environment:
+      PORT: 5000
+    restart: always
+    depends_on:
+      - rabbitmq
+      - db
+    networks:
+      - microservice
+    # command:  sh -c './wait-for-it.sh rabbitmq:5672 --timeout=30 -- npm run dev'
+    
+
+  auth:
+    build: ./auth
+    ports: 
+      - 5001:5001
+    environment:
+      PORT: 5001
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - microservice
+  
+  db:
+    image: mongo:latest
+    ports: 
+      - 27017:27017
+    restart: always
+    networks:
+      - microservice
+      
+  rabbitmq:
+    image: rabbitmq:3.9-management-alpine
+    ports: 
+      - 15672:15672
+      - 5672:5672
+    restart: always
+    networks:
+      - microservice
+    
+networks:
+  microservice:
+    driver: bridge
